@@ -1,51 +1,51 @@
 # MQ_Data_Preparation
 
-Script de **MATLAB** para la preparación y procesamiento de datos sísmicos lunares de las misiones **Apollo**.
+**MATLAB** script for preparation and processing of lunar seismic data from the **Apollo** missions.
 
-El script procesa registros **LP (Long Period)** y **SP (Short Period)** obtenidos a partir del catálogo de moonquakes someros y de los datos descargados desde **DARTS (JAXA)**. El flujo incluye extracción de registros, preprocesamiento, deconvolución de la respuesta instrumental y generación de archivos de resultados y gráficas en formato PDF.
+The script processes **LP (Long Period)** and **SP (Short Period)** records obtained from the shallow moonquake catalog and data downloaded from **DARTS (JAXA)**. The workflow includes record extraction, preprocessing, instrumental response deconvolution, and generation of output files and PDF plots.
 
 ---
 
-## 📋 Descripción general
+## 📋 Overview
 
-Para cada evento incluido en el catálogo, `MQ_Data_Preparation.m` ejecuta un flujo de procesamiento que comprende:
+For each event included in the catalog, `MQ_Data_Preparation.m` runs a processing workflow comprising:
 
-1. Creación de una estructura de directorios organizada por evento y tipo de registro.
-2. Descarga opcional de los archivos CSV desde DARTS.
-3. Extracción de las señales por estación y componente.
-4. Preprocesamiento de las señales:
-   - Recorte temporal.
-   - Remuestreo.
+1. Creation of a directory structure organized by event and record type.
+2. Optional download of CSV files from DARTS.
+3. Extraction of signals by station and component.
+4. Signal preprocessing:
+   - Time-window trimming.
+   - Resampling.
    - `detrend`.
-   - Eliminación de picos mediante `hampel`.
-5. Deconvolución de la respuesta instrumental.
-6. Obtención de:
-   - Aceleración.
-   - Velocidad.
-   - Desplazamiento.
-7. Guardado de los resultados en archivos `.txt`.
-8. Generación de gráficas PDF de las diferentes etapas del procesamiento.
+   - Spike removal using `hampel`.
+5. Instrumental response deconvolution.
+6. Computation of:
+   - Acceleration.
+   - Velocity.
+   - Displacement.
+7. Saving results to `.txt` files.
+8. Generation of PDF plots for different processing stages.
 
 ---
 
-## 🔬 Tipos de registros
+## 🔬 Record types
 
-El script procesa dos tipos de registros sísmicos:
+The script processes two seismic record types:
 
-| Tipo | Descripción | Componentes |
+| Type | Description | Components |
 |---|---|---|
 | **LP** | Long Period | X, Y, Z |
 | **SP** | Short Period | Z |
 
-Los datos se procesan de manera independiente para cada evento, estación y componente.
+Data are processed independently for each event, station, and component.
 
 ---
 
-## 🛠️ Requisitos
+## 🛠️ Requirements
 
 ### MATLAB
 
-Se requiere una versión de MATLAB compatible con las funciones utilizadas por el script, incluyendo:
+A MATLAB version compatible with the functions used by the script is required, including:
 
 - `datetime`
 - `readtable`
@@ -60,7 +60,7 @@ Se requiere una versión de MATLAB compatible con las funciones utilizadas por e
 
 ### MATLAB Toolboxes
 
-El script utiliza funciones pertenecientes a los siguientes toolboxes:
+The script uses functions from the following toolboxes:
 
 - **Signal Processing Toolbox**
   - `hampel`
@@ -76,29 +76,29 @@ El script utiliza funciones pertenecientes a los siguientes toolboxes:
 - **Global Optimization Toolbox**
   - `particleswarm`
 
-### Archivos de entrada
+### Input files
 
-El directorio de trabajo debe contener:
+The working directory must contain:
 
 ```text
 Shallow_Catalog.txt
 Flat_Mode_Operation_Term.txt
 ```
 
-Además, deben estar disponibles los archivos CSV procedentes de DARTS en las carpetas `01-Darts`, salvo que se habilite la descarga automática.
+In addition, the CSV files from DARTS must be available in the `01-Darts` folders, unless automatic downloading is enabled.
 
 ---
 
-## 📁 Estructura de directorios
+## 📁 Directory structure
 
-El programa genera una carpeta principal denominada `Darts_Data_Preparation`.
+The program creates a main folder named `Darts_Data_Preparation`.
 
-Dentro de ella se crea una carpeta para cada evento del catálogo:
+Inside it, one folder is created for each catalog event:
 
 ```text
 Darts_Data_Preparation/
 │
-└── <Evento>/
+└── <Event>/
     │
     ├── LP/
     │   │
@@ -139,28 +139,28 @@ Darts_Data_Preparation/
                 └── Dis/
 ```
 
-> **Nota:** La estructura creada para LP utiliza la carpeta `Des`, mientras que `SaveDeconvolved` utiliza `Dis` para guardar el desplazamiento. Esta inconsistencia está documentada en la sección de limitaciones conocidas.
+> **Note:** The structure created for LP uses the `Des` folder, while `SaveDeconvolved` uses `Dis` to save displacement. This inconsistency is documented in the known limitations section.
 
 ---
 
-## 🔄 Flujo de procesamiento
+## 🔄 Processing workflow
 
-El procesamiento se puede representar de forma simplificada como:
+The processing can be represented in simplified form as:
 
 ```text
                  Shallow_Catalog.txt
                          │
                          ▼
                ┌───────────────────┐
-               │   Inicialización   │
+               │   Initialization  │
                └─────────┬─────────┘
                          │
                          ▼
-              Creación de directorios
+              Creation of directories
                          │
                          ▼
                 ┌─────────────────┐
-                │ Datos DARTS     │
+                │ DARTS data      │
                 │     CSV         │
                 └────────┬────────┘
                          │
@@ -205,31 +205,31 @@ El procesamiento se puede representar de forma simplificada como:
 
 ---
 
-## ⚙️ Etapas principales
+## ⚙️ Main stages
 
-### 1. Inicialización
+### 1. Initialization
 
-El script:
+The script:
 
-- Limpia el entorno de MATLAB.
-- Inicia un cronómetro.
-- Crea un archivo `diary.txt`.
-- Registra la fecha y hora de ejecución.
-- Lee:
+- Clears the MATLAB environment.
+- Starts a timer.
+- Creates a `diary.txt` file.
+- Logs the execution date and time.
+- Reads:
   - `Shallow_Catalog.txt`
   - `Flat_Mode_Operation_Term.txt`
-- Crea el directorio principal `Darts_Data_Preparation`.
+- Creates the main directory `Darts_Data_Preparation`.
 
 ---
 
-### 2. Creación de directorios
+### 2. Directory creation
 
-Para cada evento del catálogo se crean las estructuras independientes para:
+For each catalog event, independent structures are created for:
 
 - `LP`
 - `SP`
 
-Cada tipo de registro contiene las etapas:
+Each record type contains the stages:
 
 ```text
 01-Darts
@@ -240,37 +240,37 @@ Cada tipo de registro contiene las etapas:
 
 ---
 
-### 3. Descarga de datos DARTS
+### 3. DARTS data download
 
-La función:
+The function:
 
 ```matlab
 DartsDownload(...)
 ```
 
-construye las solicitudes para descargar los registros horarios desde el servidor DARTS.
+builds requests to download hourly records from the DARTS server.
 
-Actualmente, la llamada a esta función se encuentra comentada dentro del flujo principal:
+Currently, the call to this function is commented out in the main workflow:
 
 ```matlab
 %DartsDownload(...)
 ```
 
-Por lo tanto, los archivos CSV deben estar disponibles previamente en `01-Darts`, a menos que se habilite la descarga.
+Therefore, the CSV files must already be available in `01-Darts`, unless downloading is enabled.
 
 ---
 
-### 4. Extracción de registros
+### 4. Record extraction
 
-La función:
+The function:
 
 ```matlab
 RecordExtraction(...)
 ```
 
-lee los archivos CSV y agrupa los datos por estación.
+reads the CSV files and groups the data by station.
 
-Para registros **LP** extrae:
+For **LP** records it extracts:
 
 ```text
 LPX
@@ -278,25 +278,25 @@ LPY
 LPZ
 ```
 
-Para registros **SP** extrae:
+For **SP** records it extracts:
 
 ```text
 SPZ
 ```
 
-Los datos extraídos contienen:
+The extracted data contain:
 
 ```text
 Time [s]    Amplitude [DU]
 ```
 
-Para LP se almacenan las tres componentes:
+For LP, the three components are stored:
 
 ```text
 Time    LPX    LPY    LPZ
 ```
 
-Mientras que para SP se almacena:
+Whereas for SP the following is stored:
 
 ```text
 Time    SPZ
@@ -304,21 +304,21 @@ Time    SPZ
 
 ---
 
-### 5. Guardado de registros extraídos
+### 5. Saving extracted records
 
-La función:
+The function:
 
 ```matlab
 SaveExtracted(...)
 ```
 
-genera archivos con el formato:
+generates files with the format:
 
 ```text
-02-<Evento>-<Estación>-<Componente>.txt
+02-<Event>-<Station>-<Component>.txt
 ```
 
-También genera una representación gráfica del registro en PDF dentro de:
+It also generates a PDF plot of the record inside:
 
 ```text
 02-Extracted/Plot/
@@ -326,39 +326,39 @@ También genera una representación gráfica del registro en PDF dentro de:
 
 ---
 
-### 6. Preprocesamiento
+### 6. Preprocessing
 
-La función:
+The function:
 
 ```matlab
 PreProcessing(...)
 ```
 
-realiza las siguientes operaciones:
+performs the following operations:
 
-1. Determina la ventana temporal correspondiente al evento.
-2. Recorta el registro.
-3. Reestablece el tiempo inicial a `t = 0`.
-4. Remuestrea la señal.
-5. Elimina muestras con tiempos no crecientes.
-6. Aplica `detrend`.
-7. Utiliza `hampel` para la eliminación de picos.
-8. Aplica nuevamente `detrend`.
+1. Determines the time window corresponding to the event.
+2. Trims the record.
+3. Resets the initial time to `t = 0`.
+4. Resamples the signal.
+5. Removes samples with non-increasing times.
+6. Applies `detrend`.
+7. Uses `hampel` for spike removal.
+8. Applies `detrend` again.
 
-Las frecuencias de muestreo utilizadas son:
+The sampling intervals used are:
 
-| Registro | Intervalo utilizado | Frecuencia |
+| Record | Interval used | Frequency |
 |---|---:|---:|
 | LP | `0.15094 s` | `1 / 0.15094 Hz` |
 | SP | `0.018868 s` | `1 / 0.018868 Hz` |
 
-Los registros preprocesados se almacenan en:
+The preprocessed records are stored in:
 
 ```text
 03-PreProcessed/
 ```
 
-y sus gráficas en:
+and their plots in:
 
 ```text
 03-PreProcessed/Plot/
@@ -366,17 +366,17 @@ y sus gráficas en:
 
 ---
 
-### 7. Deconvolución
+### 7. Deconvolution
 
-La función:
+The function:
 
 ```matlab
 Deconvolution(...)
 ```
 
-realiza la deconvolución de la respuesta instrumental.
+performs deconvolution of the instrumental response.
 
-El procedimiento genera tres cantidades:
+The procedure generates three quantities:
 
 ```text
 Acceleration
@@ -384,30 +384,30 @@ Velocity
 Displacement
 ```
 
-La respuesta instrumental se representa mediante funciones de transferencia utilizando:
+The instrumental response is represented using transfer functions with:
 
 ```matlab
 tf(...)
 ```
 
-y se obtiene su respuesta mediante:
+and its response is obtained using:
 
 ```matlab
 lsim(...)
 ```
 
-La deconvolución se realiza en el dominio de la frecuencia mediante la transformada de Fourier.
+Deconvolution is performed in the frequency domain using the Fourier transform.
 
-Para registros **LP**, el script contempla dos modos:
+For **LP** records, the script considers two modes:
 
 ```text
 P = Periodic
 F = Flat
 ```
 
-El modo utilizado se determina a partir de `Flat_Mode_Operation_Term.txt`.
+The mode used is determined from `Flat_Mode_Operation_Term.txt`.
 
-Para registros **SP**, el parámetro de regularización `k` se ajusta mediante:
+For **SP** records, the regularization parameter `k` is adjusted using:
 
 ```matlab
 particleswarm
@@ -415,23 +415,23 @@ particleswarm
 
 ---
 
-### 8. Filtrado posterior
+### 8. Post-filtering
 
-Después de la deconvolución se aplica un filtro pasa-banda.
+After deconvolution, a band-pass filter is applied.
 
-Para LP:
+For LP:
 
 ```matlab
 butter(8,...,'bandpass')
 ```
 
-Para SP:
+For SP:
 
 ```matlab
 butter(6,...,'bandpass')
 ```
 
-Posteriormente se aplican nuevamente:
+Then the following are applied again:
 
 ```text
 filtfilt
@@ -442,17 +442,17 @@ detrend
 
 ---
 
-### 9. Guardado de resultados deconvolucionados
+### 9. Saving deconvolved results
 
-La función:
+The function:
 
 ```matlab
 SaveDeconvolved(...)
 ```
 
-guarda tres tipos de resultados.
+saves three types of results.
 
-#### Aceleración
+#### Acceleration
 
 ```text
 04-Deconvolved/
@@ -460,13 +460,13 @@ guarda tres tipos de resultados.
     └── Acc*.txt
 ```
 
-Unidad:
+Unit:
 
 ```text
 m·s⁻²
 ```
 
-#### Velocidad
+#### Velocity
 
 ```text
 04-Deconvolved/
@@ -474,13 +474,13 @@ m·s⁻²
     └── Vel*.txt
 ```
 
-Unidad:
+Unit:
 
 ```text
 m·s⁻¹
 ```
 
-#### Desplazamiento
+#### Displacement
 
 ```text
 04-Deconvolved/
@@ -488,48 +488,48 @@ m·s⁻¹
     └── Dis*.txt
 ```
 
-Unidad:
+Unit:
 
 ```text
 m
 ```
 
-También se generan gráficas PDF que incluyen:
+PDF plots are also generated, including:
 
-- Serie temporal.
+- Time series.
 - Power Spectral Density (PSD).
 
 ---
 
-## 📊 Archivos de salida
+## 📊 Output files
 
-### Datos extraídos
+### Extracted data
 
 ```text
 02-*.txt
 ```
 
-Contienen:
+Contains:
 
 ```text
 Time [s]
 Amplitude [DU]
 ```
 
-### Datos preprocesados
+### Preprocessed data
 
 ```text
 03-*.txt
 ```
 
-Contienen:
+Contains:
 
 ```text
 Time [s]
 Amplitude [DU]
 ```
 
-### Datos deconvolucionados
+### Deconvolved data
 
 ```text
 Acc/Acc*.txt
@@ -537,7 +537,7 @@ Vel/Vel*.txt
 Dis/Dis*.txt
 ```
 
-Contienen respectivamente:
+Contains respectively:
 
 ```text
 Time [s]    Acceleration [m·s⁻²]
@@ -545,124 +545,124 @@ Time [s]    Velocity [m·s⁻¹]
 Time [s]    Displacement [m]
 ```
 
-### Gráficas
+### Plots
 
-Las gráficas se almacenan en las carpetas `Plot` correspondientes.
+Plots are stored in the corresponding `Plot` folders.
 
-Las gráficas de las etapas de preprocesamiento y deconvolución incluyen análisis de **Power Spectral Density (PSD)** mediante `pwelch`.
+Plots from the preprocessing and deconvolution stages include **Power Spectral Density (PSD)** analysis using `pwelch`.
 
 ---
 
-## 🧩 Funciones principales
+## 🧩 Main functions
 
-| Función | Descripción |
+| Function | Description |
 |---|---|
-| `DartsDownload` | Descarga archivos CSV horarios desde el servidor DARTS. |
-| `RecordExtraction` | Lee los CSV y extrae los registros por estación y componente. |
-| `SaveExtracted` | Guarda los registros extraídos y genera sus gráficas. |
-| `PreProcessing` | Recorta, remuestrea y limpia las señales. |
-| `SavePreProcessed` | Guarda los registros preprocesados y genera gráficas con PSD. |
-| `Deconvolution` | Realiza la deconvolución instrumental y obtiene aceleración, velocidad y desplazamiento. |
-| `SaveDeconvolved` | Guarda los resultados deconvolucionados y genera las gráficas correspondientes. |
+| `DartsDownload` | Downloads hourly CSV files from the DARTS server. |
+| `RecordExtraction` | Reads the CSVs and extracts records by station and component. |
+| `SaveExtracted` | Saves extracted records and generates their plots. |
+| `PreProcessing` | Trims, resamples, and cleans the signals. |
+| `SavePreProcessed` | Saves preprocessed records and generates plots with PSD. |
+| `Deconvolution` | Performs instrumental deconvolution and obtains acceleration, velocity, and displacement. |
+| `SaveDeconvolved` | Saves deconvolved results and generates the corresponding plots. |
 
 ---
 
-## ▶️ Uso
+## ▶️ Usage
 
-### 1. Preparar los archivos
+### 1. Prepare the files
 
-Coloca en el directorio de trabajo de MATLAB:
+Place in the MATLAB working directory:
 
 ```text
 Shallow_Catalog.txt
 Flat_Mode_Operation_Term.txt
 ```
 
-### 2. Preparar los datos DARTS
+### 2. Prepare the DARTS data
 
-Coloca los archivos CSV correspondientes dentro de las carpetas:
+Place the corresponding CSV files inside the folders:
 
 ```text
 01-Darts/
 ```
 
-o habilita la llamada a:
+or enable the call to:
 
 ```matlab
 DartsDownload(...)
 ```
 
-si deseas utilizar la descarga automática.
+if you want to use automatic downloading.
 
-### 3. Ejecutar el script
+### 3. Run the script
 
-Desde MATLAB:
+From MATLAB:
 
 ```matlab
 MQ_Data_Preparation
 ```
 
-### 4. Revisar los resultados
+### 4. Review the results
 
-Al finalizar el procesamiento se habrá generado:
+After processing finishes, the following will have been generated:
 
 ```text
 Darts_Data_Preparation/
 ```
 
-con una estructura organizada por evento, tipo de registro y etapa de procesamiento.
+with a structure organized by event, record type, and processing stage.
 
-También se genera:
+Also generated:
 
 ```text
 diary.txt
 ```
 
-que contiene el registro de la ejecución.
+which contains the execution log.
 
 ---
 
-## ⚠️ Limitaciones conocidas
+## ⚠️ Known limitations
 
-### `readtable` y `Format`
+### `readtable` and `Format`
 
-El script utiliza:
+The script uses:
 
 ```matlab
 readtable(...,'Format',...)
 ```
 
-en la lectura inicial de los archivos de catálogo.
+in the initial reading of catalog files.
 
-Según la documentación/compatibilidad de MATLAB utilizada durante el desarrollo, este uso puede producir un error. Se recomienda revisar la forma de lectura de estos archivos, por ejemplo utilizando `textscan` o una configuración compatible de `readtable`.
+Depending on the MATLAB version/compatibility used during development, this usage may produce an error. It is recommended to review how these files are read, for example using `textscan` or a compatible `readtable` configuration.
 
 ---
 
-### Separadores de rutas
+### Path separators
 
-El script utiliza separadores específicos de Windows, por ejemplo:
+The script uses Windows-specific separators, for example:
 
 ```matlab
 '\'
 ```
 
-en diferentes operaciones de archivos y directorios.
+in several file and directory operations.
 
-Esto limita la portabilidad a Linux y macOS.
+This limits portability to Linux and macOS.
 
-Una alternativa más portable es utilizar:
+A more portable alternative is to use:
 
 ```matlab
 fullfile(...)
 ```
 
-para construir las rutas.
+to construct paths.
 
 ---
 
-### Manejo silencioso de errores
+### Silent error handling
 
-Existen múltiples bloques:
+There are multiple blocks:
 
 ```matlab
 try
@@ -672,71 +672,71 @@ catch
 end
 ```
 
-que no muestran información sobre el error producido.
+that do not display information about the produced error.
 
-Esto puede dificultar la identificación de problemas durante el procesamiento.
+This can make it harder to identify problems during processing.
 
 ---
 
 ### `nfft`
 
-En varias gráficas se utiliza:
+In several plots, the following is used:
 
 ```matlab
 nfft = 2^(nextpow2(N)-7);
 ```
 
-Para registros suficientemente cortos, esta expresión puede producir un valor inválido o menor que 1.
+For sufficiently short records, this expression may produce an invalid value or a value less than 1.
 
-Se recomienda añadir una comprobación del tamaño mínimo antes de utilizar `pwelch`.
+It is recommended to add a minimum size check before using `pwelch`.
 
 ---
 
-### Inconsistencia `Des` / `Dis`
+### `Des` / `Dis` inconsistency
 
-La estructura de directorios para LP crea:
+The directory structure for LP creates:
 
 ```text
 Des/
 ```
 
-pero `SaveDeconvolved` utiliza:
+but `SaveDeconvolved` uses:
 
 ```matlab
 Dis\
 ```
 
-para guardar el desplazamiento.
+to save displacement.
 
-Esto constituye una inconsistencia entre la estructura creada y la ruta utilizada durante el guardado.
-
----
-
-### Dependencias de MATLAB Toolboxes
-
-Si alguna de las toolboxes requeridas no está instalada, determinadas operaciones pueden fallar.
-
-El uso de bloques `try/catch` vacíos puede hacer que algunos de estos errores no sean visibles inmediatamente.
+This constitutes an inconsistency between the created structure and the path used during saving.
 
 ---
 
-### Descarga automática deshabilitada
+### MATLAB Toolbox dependencies
 
-La función:
+If any of the required toolboxes is not installed, certain operations may fail.
+
+The use of empty `try/catch` blocks may prevent some of these errors from being immediately visible.
+
+---
+
+### Automatic download disabled
+
+The function:
 
 ```matlab
 DartsDownload(...)
 ```
 
-está implementada, pero su llamada se encuentra comentada en el flujo principal.
+is implemented, but its call is commented out in the main workflow.
 
-Por ello, actualmente se espera que los archivos CSV estén disponibles previamente.
+Therefore, the CSV files are currently expected to be available beforehand.
 
 ---
 
-### Parseo de nombres de archivos
+### Filename parsing
 
-Algunas partes del procesamiento dependen de posiciones específicas dentro del nombre del archivo, por ejemplo:
+Some parts of the processing depend on specific positions within the filename, for example:
 
 ```matlab
 filename(5:6)
@@ -745,53 +745,53 @@ filename(13:14)
 filename(15)
 ```
 
-Esto hace que el procesamiento dependa de un formato específico de nombres.
+This makes processing depend on a specific filename format.
 
-Un sistema basado en identificación explícita mediante `strsplit`, expresiones regulares o búsqueda por ID podría resultar más robusto.
+A system based on explicit identification using `strsplit`, regular expressions, or ID lookup could be more robust.
 
 ---
 
-### Límites de las gráficas
+### Plot limits
 
-En `SaveExtracted` el eje vertical se establece mediante:
+In `SaveExtracted`, the vertical axis is set using:
 
 ```matlab
 axis([0 xmax 0 ymax]);
 ```
 
-Esto fija el límite inferior del eje Y en cero y puede ocultar valores negativos de la señal.
+This sets the lower Y-axis limit to zero and may hide negative signal values.
 
 ---
 
-## 📚 Archivos relacionados
+## 📚 Related files
 
-El procesamiento depende principalmente de:
+Processing mainly depends on:
 
 ```text
 Shallow_Catalog.txt
 Flat_Mode_Operation_Term.txt
 ```
 
-y de los registros CSV descargados desde DARTS.
+and on the CSV records downloaded from DARTS.
 
 ---
 
-## 👤 Autor
+## 👤 Author
 
-**No especificado en el archivo original.**
+**Not specified in the original file.**
 
-Añadir aquí la información correspondiente al autor o autores del proyecto.
-
----
-
-## 📄 Licencia
-
-**No especificada en el archivo original.**
-
-Añadir aquí la licencia bajo la cual se distribuye el código.
+Add here the corresponding information for the project author(s).
 
 ---
 
-## 📝 Estado del proyecto
+## 📄 License
 
-`MQ_Data_Preparation.m` constituye un flujo de procesamiento MATLAB para la preparación de registros sísmicos lunares Apollo, desde los datos originales hasta señales deconvolucionadas de aceleración, velocidad y desplazamiento, junto con sus representaciones gráficas y análisis PSD.
+**Not specified in the original file.**
+
+Add here the license under which the code is distributed.
+
+---
+
+## 📝 Project status
+
+`MQ_Data_Preparation.m` constitutes a MATLAB processing workflow for preparing Apollo lunar seismic records, from original data to deconvolved acceleration, velocity, and displacement signals, together with their graphical representations and PSD analysis.
